@@ -1,11 +1,11 @@
 ---
 name: pollinations
-version: 1.0.2
+version: 1.1.0
 description: "Pollinations.ai API for AI generation and analysis - text, images, videos, audio, vision, and transcription. Use when user requests AI-powered content (text completion, image generation/editing, video generation, audio/TTS, image/video analysis, audio transcription) or mentions Pollinations. Supports 25+ models with OpenAI-compatible endpoints."
 metadata: {"openclaw":{"emoji":"🧬","homepage":"https://pollinations.ai","os":["darwin","linux","win32"],"requires":{"bins":["curl","jq","base64"],"env":["POLLINATIONS_API_KEY"]},"primaryEnv":"POLLINATIONS_API_KEY","install":[{"id":"jq-brew","kind":"brew","formula":"jq","bins":["jq"],"label":"Install jq via Homebrew","os":["darwin"]},{"id":"jq-apt","kind":"shell","command":"sudo apt-get install -y jq","bins":["jq"],"label":"Install jq via apt","os":["linux"]}]}}
 ---
 
-# Pollinations v1.0.2
+# Pollinations v1.1.0
 
 Unified AI platform for generating and analyzing text, images, videos, and audio with 25+ models.
 
@@ -134,24 +134,31 @@ https://gen.pollinations.ai/image/prompt?model=veo&image[0]=first_frame_url&imag
 
 ### 5. Text-to-Speech / Audio (`scripts/tts.sh`)
 
-Convert text to speech with multiple voices and formats.
+Convert text to speech via the OpenAI-compatible `/v1/audio/speech` endpoint.
 
 **Usage:**
 ```bash
 scripts/tts.sh "Hello world"
 scripts/tts.sh "Bonjour le monde" --voice nova --format mp3
-scripts/tts.sh "Welcome" --voice coral --format wav --output welcome.wav
+scripts/tts.sh "Welcome" --voice rachel --format wav --output welcome.wav
+scripts/tts.sh "Speak warmly" --model qwen-tts-instruct --instruct "soft and gentle"
+scripts/tts.sh "upbeat jazz" --model elevenmusic --output music.mp3
 ```
 
 **Options:**
-- `--voice VOICE` — Voice selection (default: nova)
+- `--voice VOICE` — Voice (default: nova)
 - `--format FORMAT` — Output format (default: mp3)
-- `--model MODEL` — Model (default: openai-audio)
+- `--model MODEL` — Model (default: tts-1)
+- `--speed N` — Speech speed 0.25–4.0
+- `--seed N` — Deterministic output
+- `--instruct TEXT` — Emotion/style hint (qwen-tts-instruct only)
 - `--output FILE` — Output filename
 
-**Voices (13):** alloy, amuch, ash, ballad, coral, dan, echo, fable, nova, onyx, sage, shimmer, verse
+**Voices (35):** alloy, echo, fable, onyx, nova, shimmer, ash, ballad, coral, sage, verse, rachel, domi, bella, elli, charlotte, dorothy, sarah, emily, lily, matilda, adam, antoni, arnold, josh, sam, daniel, charlie, james, fin, callum, liam, george, brian, bill (or any custom ElevenLabs voice UUID)
 
-**Formats (5):** mp3, wav, flac, opus, pcm16
+**Formats (6):** mp3, opus, aac, flac, wav, pcm
+
+**Models:** tts-1 (default speech), elevenmusic (music with `--seed`/`--instrumental`), acestep (music), qwen-tts-instruct (instructable speech)
 
 ### 6. Image Analysis / Vision (`scripts/analyze-image.sh`)
 
@@ -193,22 +200,24 @@ scripts/analyze-video.sh clip.mov --model gemini-large --prompt "Count the peopl
 
 ### 8. Audio Transcription (`scripts/transcribe.sh`)
 
-Transcribe audio files to text.
+Transcribe audio files to text via the Whisper-compatible `/v1/audio/transcriptions` endpoint.
 
 **Usage:**
 ```bash
 scripts/transcribe.sh recording.mp3
-scripts/transcribe.sh podcast.wav --model gemini-large
-scripts/transcribe.sh "https://example.com/audio.mp3" --prompt "Transcribe in French"
+scripts/transcribe.sh podcast.wav --model scribe --language en
+scripts/transcribe.sh "https://example.com/audio.mp3" --language fr --format srt
+scripts/transcribe.sh meeting.m4a --format verbose_json --temperature 0
 ```
 
 **Options:**
-- `--prompt "TEXT"` — Transcription instructions (default: accurate transcription)
-- `--model MODEL` — Audio-capable model (default: gemini)
+- `--model MODEL` — whisper-large-v3 (default), whisper-1, scribe (ElevenLabs)
+- `--language CODE` — ISO-639-1 hint (e.g. en, fr, ja) for better accuracy
+- `--prompt TEXT` — Optional context/style prompt
+- `--format FORMAT` — json (default), text, srt, vtt, verbose_json
+- `--temperature N` — Sampling temperature 0–1
 
-**Input:** Local file or URL (mp3, wav, flac, ogg, m4a)
-
-**Models:** gemini, gemini-large, gemini-legacy, openai-audio
+**Input:** Local file or URL (mp3, mp4, mpeg, mpga, m4a, wav, webm)
 
 ### 9. List Available Models (`scripts/models.sh`)
 
@@ -232,13 +241,15 @@ scripts/models.sh audio        # Audio/TTS models
 | Chat Completion | `/v1/chat/completions` | POST |
 | Image Generation | `/image/{prompt}?{params}` | GET |
 | Image-to-Image | `/image/{prompt}?image={url}&{params}` | GET |
-| Video Generation | `/image/{prompt}?model=veo&{params}` | GET |
+| Video Generation | `/video/{prompt}?{params}` | GET |
 | Image Analysis | `/v1/chat/completions` (with image_url) | POST |
 | Video Analysis | `/v1/chat/completions` (with video_url) | POST |
-| Audio/TTS | `/v1/chat/completions` (openai-audio) | POST |
-| Audio Transcription | `/v1/chat/completions` (with input_audio) | POST |
+| Text-to-Speech | `/v1/audio/speech` | POST |
+| Audio Transcription | `/v1/audio/transcriptions` (multipart) | POST |
+| Media Upload | `https://media.pollinations.ai/upload` | POST |
 | List Text Models | `/v1/models` | GET |
 | List Image Models | `/image/models` | GET |
+| List Audio Models | `/audio/models` | GET |
 | List Vision Models | `/text/models` | GET |
 
 ## Tips
