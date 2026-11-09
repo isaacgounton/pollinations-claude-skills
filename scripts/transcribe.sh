@@ -61,10 +61,16 @@ fi
 # If URL, download to temp file
 TEMP_AUDIO=""
 if [[ ! -f "$AUDIO_INPUT" ]]; then
+  # Only fetch http(s) URLs: curl would otherwise read file://, ftp://, etc.
+  if [[ ! "$AUDIO_INPUT" =~ ^https?:// ]]; then
+    echo "Error: input must be an existing local file or an http(s) URL."
+    exit 1
+  fi
   echo "Downloading audio..."
-  TEMP_AUDIO=$(mktemp /tmp/audio_dl_XXXXXX)
-  trap "rm -f '$TEMP_AUDIO'" EXIT
-  curl -sL -o "$TEMP_AUDIO" "$AUDIO_INPUT"
+  TEMP_AUDIO=$(mktemp "${TMPDIR:-/tmp}/audio_dl_XXXXXX")
+  trap 'rm -f "$TEMP_AUDIO"' EXIT
+  curl -sSL --proto '=http,https' --proto-redir '=http,https' --max-filesize 26214400 --max-time 120 \
+    -o "$TEMP_AUDIO" "$AUDIO_INPUT"
   AUDIO_INPUT="$TEMP_AUDIO"
 fi
 

@@ -1,11 +1,11 @@
 ---
 name: pollinations
-version: 1.1.0
+version: 1.1.1
 description: "Pollinations.ai API for AI generation and analysis - text, images, videos, audio, vision, and transcription. Use when user requests AI-powered content (text completion, image generation/editing, video generation, audio/TTS, image/video analysis, audio transcription) or mentions Pollinations. Supports 25+ models with OpenAI-compatible endpoints."
 metadata: {"openclaw":{"emoji":"🧬","homepage":"https://pollinations.ai","os":["darwin","linux","win32"],"requires":{"bins":["curl","jq","base64"],"env":["POLLINATIONS_API_KEY"]},"primaryEnv":"POLLINATIONS_API_KEY","install":[{"id":"jq-brew","kind":"brew","formula":"jq","bins":["jq"],"label":"Install jq via Homebrew","os":["darwin"]},{"id":"jq-apt","kind":"shell","command":"sudo apt-get install -y jq","bins":["jq"],"label":"Install jq via apt","os":["linux"]}]}}
 ---
 
-# Pollinations v1.1.0
+# Pollinations v1.1.1
 
 Unified AI platform for generating and analyzing text, images, videos, and audio with 25+ models.
 
@@ -263,6 +263,8 @@ scripts/models.sh audio        # Audio/TTS models
 7. **Video from images**: Use `--image-url` with seedance for image-to-video, or veo frame interpolation
 8. **Audio on video**: Use `--audio` with veo model for videos with sound
 9. **Local files**: Analysis scripts (image, video, transcription) accept both URLs and local files
+10. **Data leaves your machine**: prompts, images, video and audio are sent to gen.pollinations.ai (and local images for editing are uploaded to media.pollinations.ai). Selecting a model such as claude, gemini or openai routes the content to that vendor through Pollinations. Do not send anything you would not share with a third party.
+11. **Transcription inputs**: only local files and http(s) URLs are accepted; other URL schemes (file://, ftp://) are rejected.
 10. **Private mode**: Use `--private` to keep generations off public feed
 
 ## API Documentation
