@@ -7,7 +7,7 @@ metadata: {"openclaw":{"emoji":"🧬","homepage":"https://pollinations.ai","os":
 
 # Pollinations v1.1.1
 
-Unified AI platform for generating and analyzing text, images, videos, and audio with 25+ models.
+Unified AI platform for generating and analyzing text, images, videos, and audio with 250+ text, 75+ image, 25 video and 40 audio models.
 
 ## API Key
 
@@ -28,7 +28,7 @@ Get free or paid keys at https://enter.pollinations.ai
 
 ### 1. Text/Chat Generation (`scripts/chat.sh`)
 
-Generate text using 25+ LLM models with OpenAI-compatible API.
+Generate text using 250+ LLM models with OpenAI-compatible API.
 
 **Usage:**
 ```bash
@@ -36,7 +36,7 @@ scripts/chat.sh "your message"
 scripts/chat.sh "your message" --model claude --temp 0.7
 scripts/chat.sh "explain quantum physics" --model openai --max-tokens 500
 scripts/chat.sh "list 3 colors" --json --model openai
-scripts/chat.sh "solve this step by step" --model o3 --reasoning-effort high
+scripts/chat.sh "solve this step by step" --model openai-reasoning --reasoning-effort high
 scripts/chat.sh "translate to French" --system "You are a translator" --model gemini
 ```
 
@@ -48,10 +48,10 @@ scripts/chat.sh "translate to French" --system "You are a translator" --model ge
 - `--seed N` — Reproducibility (-1 = random)
 - `--system "PROMPT"` — System prompt
 - `--json` — Force structured JSON response
-- `--reasoning-effort LVL` — For o1/o3/R1 models: high/medium/low/minimal/none
+- `--reasoning-effort LVL` — For reasoning models (e.g. openai-reasoning, grok-reasoning, kimi-thinking): high/medium/low/minimal/none
 - `--thinking-budget N` — Token budget for reasoning models
 
-**Models:** openai, claude, gemini, gemini-large, gemini-search, mistral, deepseek, grok, qwen, perplexity, o1, o3, gpt-4, and 15+ more. Use `scripts/models.sh text` to list all.
+**Models:** short aliases such as `openai` (free, default), `deepseek`, `grok`, `kimi`, `llama`, `minimax` (free) and `claude`, `gemini`, `gemini-large`, `gemini-search`, `mistral`, `perplexity` (paid), or a full id like `openai/gpt-5.5`. Ids are now `provider/name`; old aliases may change, so check `scripts/models.sh text [--free]` (shows aliases and free/paid).
 
 **Simple text (no script needed):**
 ```bash
@@ -86,7 +86,7 @@ scripts/image.sh "art" --negative "blurry, low quality" --seed 42
 - `--transparent` — Transparent background PNG (gptimage only)
 - `--image-url URL` — Source image for image-to-image
 
-**Models:** flux (default), turbo, gptimage, kontext, seedream, nanobanana, nanobanana-pro. Use `scripts/models.sh image` to list all.
+**Models:** free: `flux` (default), `kontext`, `klein`, `z-image`; paid: `gptimage`, `seedream`, `nanobanana`, `nanobanana-pro`, `flux-2-pro`, and more. Use `scripts/models.sh image [--free]` to list all.
 
 ### 3. Image Editing / Image-to-Image (`scripts/image-edit.sh`)
 
@@ -113,14 +113,14 @@ Generate videos from text prompts or images.
 **Usage:**
 ```bash
 scripts/image.sh "a cat playing piano" --model veo --duration 6
-scripts/image.sh "ocean waves" --model seedance --duration 8 --aspect-ratio 16:9
+scripts/image.sh "ocean waves" --model seedance-2.0 --duration 8 --aspect-ratio 16:9
 scripts/image.sh "timelapse" --model veo --duration 4 --audio
-scripts/image.sh "animate this" --model seedance --image-url "https://example.com/photo.jpg"
+scripts/image.sh "animate this" --model seedance-2.0 --image-url "https://example.com/photo.jpg"
 ```
 
 **Options (in addition to image options):**
-- `--model veo|seedance` — Video model (required)
-- `--duration N` — Length in seconds (veo: 4/6/8, seedance: 2-10)
+- `--model MODEL` — Video model (required)
+- `--duration N` — Length in seconds (veo: 4/6/8; others vary, see the model)
 - `--aspect-ratio RATIO` — 16:9 or 9:16
 - `--audio` — Enable audio generation (veo only)
 - `--image-url URL` — Source image for image-to-video
@@ -130,7 +130,7 @@ scripts/image.sh "animate this" --model seedance --image-url "https://example.co
 https://gen.pollinations.ai/image/prompt?model=veo&image[0]=first_frame_url&image[1]=last_frame_url
 ```
 
-**Models:** veo (4-8s, audio support, frame interpolation), seedance (2-10s, image-to-video)
+**Models:** all video models are paid (need a funded key): `veo` (4-8s, audio, frame interpolation), `seedance-2.0` / `seedance-2.5`, `wan` / `wan-2.7`, `kwaivgi/kling-v3.0-std`, `grok-imagine-video`, `happyhorse`. Run `scripts/models.sh video`.
 
 ### 5. Text-to-Speech / Audio (`scripts/tts.sh`)
 
@@ -140,7 +140,7 @@ Convert text to speech via the OpenAI-compatible `/v1/audio/speech` endpoint.
 ```bash
 scripts/tts.sh "Hello world"
 scripts/tts.sh "Bonjour le monde" --voice nova --format mp3
-scripts/tts.sh "Welcome" --voice rachel --format wav --output welcome.wav
+scripts/tts.sh "Welcome" --model eleven --voice rachel --format wav --output welcome.wav
 scripts/tts.sh "Speak warmly" --model qwen-tts-instruct --instruct "soft and gentle"
 scripts/tts.sh "upbeat jazz" --model elevenmusic --output music.mp3
 ```
@@ -154,11 +154,11 @@ scripts/tts.sh "upbeat jazz" --model elevenmusic --output music.mp3
 - `--instruct TEXT` — Emotion/style hint (qwen-tts-instruct only)
 - `--output FILE` — Output filename
 
-**Voices (35):** alloy, echo, fable, onyx, nova, shimmer, ash, ballad, coral, sage, verse, rachel, domi, bella, elli, charlotte, dorothy, sarah, emily, lily, matilda, adam, antoni, arnold, josh, sam, daniel, charlie, james, fin, callum, liam, george, brian, bill (or any custom ElevenLabs voice UUID)
+**Voices:** depend on the model. `tts-1` / `tts-1-hd` (default, free): alloy, echo, fable, onyx, nova, shimmer. ElevenLabs models (`--model eleven`): 35 voices such as rachel, domi, bella, adam, antoni, josh, sam, daniel, george, brian (or a custom voice UUID). Other models (kokoro, qwen3-tts, grok-tts, gemini TTS, mai-voice) have their own lists: `scripts/models.sh audio --json | jq` shows the model and its voices.
 
 **Formats (6):** mp3, opus, aac, flac, wav, pcm
 
-**Models:** tts-1 (default speech), elevenmusic (music with `--seed`/`--instrumental`), acestep (music), qwen-tts-instruct (instructable speech)
+**Models:** `tts-1` (default, free), `tts-1-hd` (free), `eleven` (ElevenLabs v3, paid), `qwen-tts-instruct` (instructable speech, paid), `kokoro` (paid), `music` (ElevenLabs music, paid). Run `scripts/models.sh audio [--free]`.
 
 ### 6. Image Analysis / Vision (`scripts/analyze-image.sh`)
 
@@ -173,11 +173,11 @@ scripts/analyze-image.sh image.png --model claude --prompt "Extract all text fro
 
 **Options:**
 - `--prompt "TEXT"` — Analysis question (default: "Describe this image in detail")
-- `--model MODEL` — Vision model (default: gemini)
+- `--model MODEL` — Vision model (default: openai, free)
 
 **Input:** URL or local file (jpg, png, gif, webp)
 
-**Models:** gemini, gemini-large, claude, openai, and other vision-capable models. Use `scripts/models.sh vision` to list all.
+**Models:** any text model that accepts images: `openai` (free), `grok`, `kimi` (free); `gemini`, `gemini-large`, `claude` (paid). Use `scripts/models.sh vision [--free]`.
 
 ### 7. Video Analysis (`scripts/analyze-video.sh`)
 
@@ -196,7 +196,7 @@ scripts/analyze-video.sh clip.mov --model gemini-large --prompt "Count the peopl
 
 **Input:** URL or local file (mp4, mov, avi)
 
-**Models:** gemini, gemini-large, claude, openai (video-capable models)
+**Models:** needs a model with video input: `gemini` (default, paid), `gemini-large`; community models (see `scripts/models.sh text`) with video input may be free but unreliable.
 
 ### 8. Audio Transcription (`scripts/transcribe.sh`)
 
@@ -225,7 +225,8 @@ Dynamically list all available models from the API.
 
 **Usage:**
 ```bash
-scripts/models.sh              # List all models
+scripts/models.sh              # List all models: category, id, [aliases], free|paid
+scripts/models.sh text --free  # Only free models (any category; add --json for raw data)
 scripts/models.sh text         # Text/chat models only
 scripts/models.sh image        # Image generation models
 scripts/models.sh video        # Video generation models
@@ -259,8 +260,8 @@ scripts/models.sh audio        # Audio/TTS models
 3. **Reproducibility**: Use `seed` parameter for consistent outputs across all operations
 4. **Image enhancement**: Use `--enhance` for AI-improved prompts on image generation
 5. **JSON mode**: Use `--json` flag on chat for structured data extraction
-6. **Reasoning models**: Use `--reasoning-effort` with o1/o3/R1 for controlled thinking depth
-7. **Video from images**: Use `--image-url` with seedance for image-to-video, or veo frame interpolation
+6. **Reasoning models**: Use `--reasoning-effort` with reasoning models (openai-reasoning, grok-reasoning, kimi-thinking) for controlled thinking depth
+7. **Video from images**: Use `--image-url` with seedance-2.0 for image-to-video, or veo frame interpolation
 8. **Audio on video**: Use `--audio` with veo model for videos with sound
 9. **Local files**: Analysis scripts (image, video, transcription) accept both URLs and local files
 10. **Data leaves your machine**: prompts, images, video and audio are sent to gen.pollinations.ai (and local images for editing are uploaded to media.pollinations.ai). Selecting a model such as claude, gemini or openai routes the content to that vendor through Pollinations. Do not send anything you would not share with a third party.

@@ -92,6 +92,8 @@ if [[ "$FORMAT" == "json" || "$FORMAT" == "verbose_json" ]]; then
   RESULT=$(echo "$RESPONSE" | jq -r '.text // empty' 2>/dev/null)
   if [[ -n "$RESULT" ]]; then
     echo "$RESULT"
+  elif echo "$RESPONSE" | jq -e 'has("text")' >/dev/null 2>&1; then
+    echo "No speech detected in the audio."
   else
     echo "Error: Failed to transcribe audio"
     echo "$RESPONSE" | jq . 2>/dev/null || echo "$RESPONSE"
